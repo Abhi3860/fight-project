@@ -1,0 +1,42 @@
+[gd_scene load_steps=7 format=3 uid="uid://dvrkvoxfp4ghk"]
+
+[ext_resource type="Script" uid="uid://djrlg2lfktn4b" path="res://Scenes/character_body_3d.gd" id="1_ay717"]
+[ext_resource type="Script" uid="uid://c5l2vtxa342vw" path="res://Scenes/camera_pivot.gd" id="2_rjfhe"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_vpr6t"]
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_ay717"]
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_vpr6t"]
+albedo_color = Color(1, 0, 0, 1)
+
+[sub_resource type="SphereMesh" id="SphereMesh_ay717"]
+
+[node name="Node3D" type="Node3D"]
+
+[node name="CharacterBody3D" type="CharacterBody3D" parent="."]
+script = ExtResource("1_ay717")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="CharacterBody3D"]
+shape = SubResource("CapsuleShape3D_vpr6t")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="CharacterBody3D"]
+mesh = SubResource("CapsuleMesh_ay717")
+surface_material_override/0 = SubResource("ORMMaterial3D_vpr6t")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="CharacterBody3D/MeshInstance3D"]
+transform = Transform3D(0.17, 0, 0, 0, 0.17, 0, 0, 0, 0.17, 0, 0.492252, 0.48241913)
+mesh = SubResource("SphereMesh_ay717")
+
+[node name="SpotLight3D" type="SpotLight3D" parent="CharacterBody3D"]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, 1, 0, -1, -4.371139e-08, 0, 0.3065217, 0)
+spot_range = 1.8941096
+
+[node name="Camera_pivot" type="Node3D" parent="CharacterBody3D"]
+script = ExtResource("2_rjfhe")
+
+[node name="SpringArm3D" type="SpringArm3D" parent="CharacterBody3D/Camera_pivot"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.7, 1.5, 0)
+spring_length = 4.0
+
+[node name="Camera3D" type="Camera3D" parent="CharacterBody3D/Camera_pivot/SpringArm3D"]
