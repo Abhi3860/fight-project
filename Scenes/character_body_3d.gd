@@ -3,7 +3,7 @@ extends CharacterBody3D
 # @export allows you to tweak these values directly in the Godot Inspector
 @export var walk_speed: float = 5.0
 @export var sprint_speed: float = 8.5
-@export var jump_velocity: float = 4.5
+@export var jump_velocity: float = 9.5
 @export var acceleration: float = 10.0
 @export var friction: float = 200.0
 @onready var camera_pivot: Node3D = $Camera_pivot
@@ -11,22 +11,48 @@ extends CharacterBody3D
 @export var gravity_multiplier: float = 2.5
 @export var dodge_speed: float = 20.0
 @export var dodge_duration: float = 0.15
-# Grab a reference to your visual node. 
-# Right now it's your capsule mesh, but later this will be your 3D character model.
+
 @onready var visuals: MeshInstance3D = $MeshInstance3D
-# Fetch the default gravity from your Project Settings
+@onready var stamina_bar: ProgressBar = $"../UI/stamina_bar"
+
+
+
 var gravity: float = ProjectSettings.get_setting("physics/3d/default_gravity") * gravity_multiplier
 
 var is_dodging: bool = false
 var dodge_direction: Vector3 = Vector3.ZERO
+
+#Stamina
+@export_category("Stamina")
+@export var max_stamina: float = 100.0
+@export var stamina_regen_rate: float = 35.0
+@export var stamina_regen_delay: float = 1.0  
+@export var sprint_cost: float = 15.0         
+@export var jump_cost: float = 20.0           
+@export var dodge_cost: float = 30.0
+
+var current_stamina = max_stamina
+var stamina_delay_timer: float = 0.0
+
+func _ready() -> void:
+	floor_constant_speed = true
+	floor_snap_length = 0.5
+	
+	stamina_bar.max_value = max_stamina
+	stamina_bar.value = current_stamina
+	
 func _physics_process(delta: float) -> void:
 	
 	# If the character is not on the ground, pull them down.
 	if not is_on_floor():
 		velocity.y -= gravity * delta
-
+	#stamina logic
+	if stamina_delay_timer < stamina_regen_delay:
+		stamina_delay_timer +=delta
+	elif current_stamina < max_stamina:
+		current_stamina = move_toward(current_stamina,max_stamina,stamina_regen_rate * delta)
 	
-	
+	stamina_bar.value = current_stamina
 	
 	var input_dir := Input.get_vector("left", "right", "forward", "back")
 	
@@ -40,15 +66,27 @@ func _physics_process(delta: float) -> void:
 	
 	
 	if Input.is_action_just_pressed("dodge") and is_on_floor() and not is_dodging:
-		start_dodge(direction)
+		if current_stamina >= dodge_cost:
+			current_stamina -= dodge_cost
+			stamina_delay_timer = 0.0
+			start_dodge(direction)
 	if is_dodging:
 		velocity.x = dodge_direction.x * dodge_speed
 		velocity.z = dodge_direction.z * dodge_speed
 	else:
+		#jump
 		if Input.is_action_just_pressed("jump") and is_on_floor():
-			velocity.y = jump_velocity
-		if Input.is_action_pressed("sprint"):
+			if current_stamina >= jump_cost:
+				current_stamina -= jump_cost
+				stamina_delay_timer = 0.0
+				velocity.y = jump_velocity
+		if Input.is_action_pressed("sprint") and current_stamina > 0 and direction != Vector3.ZERO:
 			current_speed = sprint_speed
+			current_stamina -= sprint_cost * delta
+			stamina_delay_timer = 0.0
+			
+			if current_stamina < 0:
+				current_stamina = 0
 		if flat_velocity.length() > current_speed:
 			flat_velocity = flat_velocity.limit_length(current_speed)
 			velocity.x = flat_velocity.x
@@ -67,6 +105,7 @@ func _physics_process(delta: float) -> void:
 
 	
 	move_and_slide()
+	
 func start_dodge(current_direction: Vector3) -> void:
 	is_dodging = true
 	if current_direction == Vector3.ZERO:
