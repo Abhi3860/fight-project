@@ -12,15 +12,18 @@ extends CharacterBody3D
 @export var dodge_speed: float = 20.0
 @export var dodge_duration: float = 0.15
 
-@onready var visuals: MeshInstance3D = $MeshInstance3D
+@onready var visuals: Node3D = $visuals
+@onready var anim_tree: AnimationTree = $AnimationTree
+
 @onready var stamina_bar: ProgressBar = $"../UI/stamina_bar"
-
-
+@onready var anim_playback = anim_tree.get("parameters/AnimationNodeStateMachine/playback")
+var current_upper_blend : float = 1.0
 
 var gravity: float = ProjectSettings.get_setting("physics/3d/default_gravity") * gravity_multiplier
-
+var current_blend_position := Vector2.ZERO
 var is_dodging: bool = false
 var dodge_direction: Vector3 = Vector3.ZERO
+@onready var animation_player: AnimationPlayer = $visuals/AnimationPlayer
 
 #Stamina
 @export_category("Stamina")
@@ -43,7 +46,6 @@ func _ready() -> void:
 	
 func _physics_process(delta: float) -> void:
 	
-	# If the character is not on the ground, pull them down.
 	if not is_on_floor():
 		velocity.y -= gravity * delta
 	#stamina logic
@@ -55,13 +57,15 @@ func _physics_process(delta: float) -> void:
 	stamina_bar.value = current_stamina
 	
 	var input_dir := Input.get_vector("left", "right", "forward", "back")
+	var target_blend := input_dir
 	
-	# NEW LINE: Calculate direction based on the CAMERA'S rotation, not the player's
+	
 	var direction := (camera_pivot.global_transform.basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
 	direction.y = 0
 	direction = direction.normalized()
 	
 	var current_speed := walk_speed
+	
 	var flat_velocity := Vector2(velocity.x, velocity.z)
 	
 	
@@ -69,6 +73,16 @@ func _physics_process(delta: float) -> void:
 		if current_stamina >= dodge_cost:
 			current_stamina -= dodge_cost
 			stamina_delay_timer = 0.0
+			var dash_anim_dir := input_dir
+			current_upper_blend = 1.0
+			if dash_anim_dir == Vector2.ZERO:
+				dash_anim_dir = Vector2(0, 1)
+			
+			anim_tree.set("parameters/AnimationNodeStateMachine/Dash/blend_position", dash_anim_dir)
+			
+			anim_playback.travel("Dash")
+			# --------------------------------
+			
 			start_dodge(direction)
 	if is_dodging:
 		velocity.x = dodge_direction.x * dodge_speed
@@ -80,8 +94,10 @@ func _physics_process(delta: float) -> void:
 				current_stamina -= jump_cost
 				stamina_delay_timer = 0.0
 				velocity.y = jump_velocity
-		if Input.is_action_pressed("sprint") and current_stamina > 0 and direction != Vector3.ZERO:
+		var is_pushing_forward : bool = input_dir.y < 0.1
+		if Input.is_action_pressed("sprint") and current_stamina > 0 and is_pushing_forward:
 			current_speed = sprint_speed
+			target_blend.y *=2.0
 			current_stamina -= sprint_cost * delta
 			stamina_delay_timer = 0.0
 			
@@ -92,17 +108,32 @@ func _physics_process(delta: float) -> void:
 			velocity.x = flat_velocity.x
 			velocity.z = flat_velocity.y
 		if direction:
-			# Move towards the target speed smoothly
+			
 			velocity.x = move_toward(velocity.x, direction.x * current_speed, acceleration * delta)
 			velocity.z = move_toward(velocity.z, direction.z * current_speed, acceleration * delta)
 			
-			var target_angle := atan2(direction.x, direction.z)
-			visuals.rotation.y = lerp_angle(visuals.rotation.y, target_angle, rotation_speed * delta)
+			
+			visuals.rotation.y = lerp_angle(visuals.rotation.y, camera_pivot.rotation.y, rotation_speed * delta)
 		else:
-			# Slide to a stop when no keys are pressed
+			
 			velocity.x = move_toward(velocity.x, 0, friction * delta)
 			velocity.z = move_toward(velocity.z, 0, friction * delta)
-
+	current_blend_position = current_blend_position.lerp(target_blend, 10.0 * delta)
+	anim_tree.set("parameters/AnimationNodeStateMachine/Move/blend_position", current_blend_position)
+	
+	
+	
+	var current_leg_state = anim_playback.get_current_node()
+	if Input.is_action_just_pressed("dodge"):
+		print("Dodge button pressed! Current leg state is: ", current_leg_state)
+	
+	if not is_dodging and current_leg_state != "Dash":
+		current_upper_blend = lerp(current_upper_blend, 0.0, 15.0 * delta)
+	
+	anim_tree.set("parameters/Blend2/blend_amount", current_upper_blend)
+	
+	
+	
 	
 	move_and_slide()
 	
