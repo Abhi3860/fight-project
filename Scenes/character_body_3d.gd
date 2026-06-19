@@ -45,7 +45,7 @@ func _ready() -> void:
 	stamina_bar.value = current_stamina
 	
 func _physics_process(delta: float) -> void:
-	
+	var current_leg_state = anim_playback.get_current_node()
 	if not is_on_floor():
 		velocity.y -= gravity * delta
 	#stamina logic
@@ -58,7 +58,10 @@ func _physics_process(delta: float) -> void:
 	
 	var input_dir := Input.get_vector("left", "right", "forward", "back")
 	var target_blend := input_dir
-	
+	if current_leg_state == "falltoroll":
+		input_dir = Vector2.ZERO
+		
+	target_blend = input_dir
 	
 	var direction := (camera_pivot.global_transform.basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
 	direction.y = 0
@@ -94,6 +97,8 @@ func _physics_process(delta: float) -> void:
 				current_stamina -= jump_cost
 				stamina_delay_timer = 0.0
 				velocity.y = jump_velocity
+				
+				anim_playback.travel("jumpup")
 		var is_pushing_forward : bool = input_dir.y < 0.1
 		if Input.is_action_pressed("sprint") and current_stamina > 0 and is_pushing_forward:
 			current_speed = sprint_speed
@@ -120,19 +125,15 @@ func _physics_process(delta: float) -> void:
 			velocity.z = move_toward(velocity.z, 0, friction * delta)
 	current_blend_position = current_blend_position.lerp(target_blend, 10.0 * delta)
 	anim_tree.set("parameters/AnimationNodeStateMachine/Move/blend_position", current_blend_position)
-	
-	
-	
-	var current_leg_state = anim_playback.get_current_node()
-	if Input.is_action_just_pressed("dodge"):
-		print("Dodge button pressed! Current leg state is: ", current_leg_state)
+
 	
 	if not is_dodging and current_leg_state != "Dash":
 		current_upper_blend = lerp(current_upper_blend, 0.0, 15.0 * delta)
 	
 	anim_tree.set("parameters/Blend2/blend_amount", current_upper_blend)
-	
-	
+	var is_falling : bool = not is_on_floor() and velocity.y < 0.0
+	anim_tree.set("parameters/AnimationNodeStateMachine/conditions/is_in_air", is_falling)
+	anim_tree.set("parameters/AnimationNodeStateMachine/conditions/is_grounded", is_on_floor())
 	
 	
 	move_and_slide()
