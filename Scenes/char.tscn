@@ -1,4 +1,4 @@
-[gd_scene load_steps=26 format=3 uid="uid://dvrkvoxfp4ghk"]
+[gd_scene load_steps=32 format=3 uid="uid://dvrkvoxfp4ghk"]
 
 [ext_resource type="Script" uid="uid://djrlg2lfktn4b" path="res://Scenes/character_body_3d.gd" id="1_ay717"]
 [ext_resource type="Script" uid="uid://c5l2vtxa342vw" path="res://Scenes/camera_pivot.gd" id="2_rjfhe"]
@@ -19,9 +19,15 @@
 [ext_resource type="Animation" uid="uid://dfdfpt7g8ib7f" path="res://resources/anims/jumpup.res" id="16_m47mi"]
 [ext_resource type="Animation" uid="uid://d3yyyoipwix1a" path="res://resources/anims/falltoroll.res" id="17_fqmam"]
 [ext_resource type="Animation" uid="uid://dekbxhk65jbp3" path="res://resources/anims/hland.res" id="18_cps2v"]
+[ext_resource type="Animation" uid="uid://dkgxnrgrjomap" path="res://resources/anims/punch.res" id="19_s2ht7"]
+[ext_resource type="Animation" uid="uid://b1kbb2yhrfsir" path="res://resources/anims/punch2.res" id="20_mlgpa"]
+[ext_resource type="Animation" uid="uid://daau1e42msdk6" path="res://resources/anims/punch3.res" id="21_vfili"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_vpr6t"]
+radius = 0.25195313
 height = 1.6591797
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_vfili"]
 
 [sub_resource type="Animation" id="Animation_4d1w0"]
 resource_name = "mixamo_com"
@@ -368,6 +374,9 @@ _data = {
 &"idl2": ExtResource("15_k1q12"),
 &"idle": SubResource("Animation_4d1w0"),
 &"jumpup": ExtResource("16_m47mi"),
+&"punch": ExtResource("19_s2ht7"),
+&"punch2": ExtResource("20_mlgpa"),
+&"punch3": ExtResource("21_vfili"),
 &"roll_fw": ExtResource("12_ghafp"),
 &"run": ExtResource("4_ym4m7"),
 &"run_backward": ExtResource("7_rgyn1"),
@@ -376,6 +385,9 @@ _data = {
 &"strafe_right": ExtResource("6_5mj7n")
 }
 
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_mlgpa"]
+animation = &"punch3"
+
 [sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_ghafp"]
 animation = &"idl2"
 
@@ -383,24 +395,34 @@ animation = &"idl2"
 filter_enabled = true
 filters = ["Skeleton3D:mixamorig_Head", "Skeleton3D:mixamorig_LeftArm", "Skeleton3D:mixamorig_LeftForeArm", "Skeleton3D:mixamorig_LeftHand", "Skeleton3D:mixamorig_LeftHandIndex1", "Skeleton3D:mixamorig_LeftHandIndex2", "Skeleton3D:mixamorig_LeftHandIndex3", "Skeleton3D:mixamorig_LeftHandMiddle1", "Skeleton3D:mixamorig_LeftHandMiddle2", "Skeleton3D:mixamorig_LeftHandMiddle3", "Skeleton3D:mixamorig_LeftHandPinky1", "Skeleton3D:mixamorig_LeftHandPinky2", "Skeleton3D:mixamorig_LeftHandPinky3", "Skeleton3D:mixamorig_LeftHandRing1", "Skeleton3D:mixamorig_LeftHandRing2", "Skeleton3D:mixamorig_LeftHandRing3", "Skeleton3D:mixamorig_LeftHandThumb1", "Skeleton3D:mixamorig_LeftHandThumb2", "Skeleton3D:mixamorig_LeftHandThumb3", "Skeleton3D:mixamorig_LeftShoulder", "Skeleton3D:mixamorig_Neck", "Skeleton3D:mixamorig_RightArm", "Skeleton3D:mixamorig_RightForeArm", "Skeleton3D:mixamorig_RightHand", "Skeleton3D:mixamorig_RightHandIndex1", "Skeleton3D:mixamorig_RightHandIndex2", "Skeleton3D:mixamorig_RightHandIndex3", "Skeleton3D:mixamorig_RightHandMiddle1", "Skeleton3D:mixamorig_RightHandMiddle2", "Skeleton3D:mixamorig_RightHandMiddle3", "Skeleton3D:mixamorig_RightHandPinky1", "Skeleton3D:mixamorig_RightHandPinky2", "Skeleton3D:mixamorig_RightHandPinky3", "Skeleton3D:mixamorig_RightHandRing1", "Skeleton3D:mixamorig_RightHandRing2", "Skeleton3D:mixamorig_RightHandRing3", "Skeleton3D:mixamorig_RightHandThumb1", "Skeleton3D:mixamorig_RightHandThumb2", "Skeleton3D:mixamorig_RightHandThumb3", "Skeleton3D:mixamorig_RightShoulder", "Skeleton3D:mixamorig_Spine", "Skeleton3D:mixamorig_Spine1", "Skeleton3D:mixamorig_Spine2"]
 
+[sub_resource type="AnimationNodeOneShot" id="AnimationNodeOneShot_vfili"]
+filter_enabled = true
+filters = ["Skeleton3D:mixamorig_Head", "Skeleton3D:mixamorig_Hips", "Skeleton3D:mixamorig_LeftArm", "Skeleton3D:mixamorig_LeftForeArm", "Skeleton3D:mixamorig_LeftHand", "Skeleton3D:mixamorig_LeftHandIndex1", "Skeleton3D:mixamorig_LeftHandIndex2", "Skeleton3D:mixamorig_LeftHandIndex3", "Skeleton3D:mixamorig_LeftHandMiddle1", "Skeleton3D:mixamorig_LeftHandMiddle2", "Skeleton3D:mixamorig_LeftHandMiddle3", "Skeleton3D:mixamorig_LeftHandPinky1", "Skeleton3D:mixamorig_LeftHandPinky2", "Skeleton3D:mixamorig_LeftHandPinky3", "Skeleton3D:mixamorig_LeftHandRing1", "Skeleton3D:mixamorig_LeftHandRing2", "Skeleton3D:mixamorig_LeftHandRing3", "Skeleton3D:mixamorig_LeftHandThumb1", "Skeleton3D:mixamorig_LeftHandThumb2", "Skeleton3D:mixamorig_LeftHandThumb3", "Skeleton3D:mixamorig_LeftShoulder", "Skeleton3D:mixamorig_Neck", "Skeleton3D:mixamorig_RightArm", "Skeleton3D:mixamorig_RightForeArm", "Skeleton3D:mixamorig_RightHand", "Skeleton3D:mixamorig_RightHandIndex1", "Skeleton3D:mixamorig_RightHandIndex2", "Skeleton3D:mixamorig_RightHandIndex3", "Skeleton3D:mixamorig_RightHandMiddle1", "Skeleton3D:mixamorig_RightHandMiddle2", "Skeleton3D:mixamorig_RightHandMiddle3", "Skeleton3D:mixamorig_RightHandPinky1", "Skeleton3D:mixamorig_RightHandPinky2", "Skeleton3D:mixamorig_RightHandPinky3", "Skeleton3D:mixamorig_RightHandRing1", "Skeleton3D:mixamorig_RightHandRing2", "Skeleton3D:mixamorig_RightHandRing3", "Skeleton3D:mixamorig_RightHandThumb1", "Skeleton3D:mixamorig_RightHandThumb2", "Skeleton3D:mixamorig_RightHandThumb3", "Skeleton3D:mixamorig_RightShoulder", "Skeleton3D:mixamorig_Spine", "Skeleton3D:mixamorig_Spine1", "Skeleton3D:mixamorig_Spine2"]
+fadein_time = 0.1
+fadeout_time = 0.2
+
 [sub_resource type="AnimationNodeBlendTree" id="AnimationNodeBlendTree_m47mi"]
-graph_offset = Vector2(-151.75433, -54.670166)
-nodes/output/position = Vector2(1220, 120)
+graph_offset = Vector2(346.1983, 57.148712)
+nodes/output/position = Vector2(1500, 140)
 nodes/AnimationNodeStateMachine/node = ExtResource("14_ctqn2")
 nodes/AnimationNodeStateMachine/position = Vector2(580, 80)
 nodes/Animation/node = SubResource("AnimationNodeAnimation_ghafp")
 nodes/Animation/position = Vector2(680, 260)
 nodes/Blend2/node = SubResource("AnimationNodeBlend2_k1q12")
 nodes/Blend2/position = Vector2(1000, 60)
-node_connections = [&"output", 0, &"Blend2", &"Blend2", 0, &"AnimationNodeStateMachine", &"Blend2", 1, &"Animation"]
+nodes/OneShot/node = SubResource("AnimationNodeOneShot_vfili")
+nodes/OneShot/position = Vector2(1180, 100)
+"nodes/Animation 2/node" = SubResource("AnimationNodeAnimation_mlgpa")
+"nodes/Animation 2/position" = Vector2(1000, 320)
+node_connections = [&"output", 0, &"OneShot", &"Blend2", 0, &"AnimationNodeStateMachine", &"Blend2", 1, &"Animation", &"OneShot", 0, &"Blend2", &"OneShot", 1, &"Animation 2"]
 
 [node name="Node3D" type="Node3D"]
 
-[node name="CharacterBody3D" type="CharacterBody3D" parent="."]
+[node name="CharacterBody3D" type="CharacterBody3D" parent="." groups=["player"]]
 script = ExtResource("1_ay717")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="CharacterBody3D"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.17041016, 0)
+transform = Transform3D(1.0832593, 0, 0, 0, 1, 0, 0, 0, 0.70026976, 0, 0.17041016, 0)
 shape = SubResource("CapsuleShape3D_vpr6t")
 
 [node name="SpotLight3D" type="SpotLight3D" parent="CharacterBody3D"]
@@ -475,6 +497,17 @@ bones/63/rotation = Quaternion(-0.3272443, 0.07360058, -0.02257036, 0.94179875)
 bones/64/rotation = Quaternion(0.6078691, 0.03744166, 0.1621447, 0.7764036)
 bones/65/rotation = Quaternion(0.3707928, -0.014026715, -0.007362007, 0.9285805)
 
+[node name="BoneAttachment3D" type="BoneAttachment3D" parent="CharacterBody3D/visuals/Skeleton3D" index="2"]
+transform = Transform3D(0.44367474, 0.13614783, 0.88578576, 0.66829294, 0.60827893, -0.42823067, -0.59710735, 0.7819595, 0.17889154, -0.31981295, 1.1967096, 0.08505231)
+bone_name = "mixamorig_RightHand"
+bone_idx = 36
+
+[node name="FistHitbox" type="Area3D" parent="CharacterBody3D/visuals/Skeleton3D/BoneAttachment3D"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="CharacterBody3D/visuals/Skeleton3D/BoneAttachment3D/FistHitbox"]
+transform = Transform3D(0.13, -1.7610457e-08, 1.871111e-08, 1.7610457e-08, 0.13, -3.3019618e-09, -1.871111e-08, 3.3019643e-09, 0.13, -0.020310074, 0.05865848, 0.008807778)
+shape = SubResource("SphereShape3D_vfili")
+
 [node name="AnimationPlayer" parent="CharacterBody3D/visuals" index="1"]
 libraries = {
 &"": SubResource("AnimationLibrary_ym4m7")
@@ -491,6 +524,9 @@ parameters/AnimationNodeStateMachine/Dash/AnimationNodeBlendSpace2D/blend_positi
 parameters/AnimationNodeStateMachine/Dash/TimeScale/scale = 1.0
 parameters/AnimationNodeStateMachine/Move/blend_position = Vector2(0, 0)
 parameters/Blend2/blend_amount = 1.0
+parameters/OneShot/active = false
+parameters/OneShot/internal_active = false
+parameters/OneShot/request = 0
 
 [node name="UI" type="CanvasLayer" parent="."]
 
@@ -500,5 +536,7 @@ offset_top = 584.0
 offset_right = 1122.0
 offset_bottom = 611.0
 show_percentage = false
+
+[connection signal="body_entered" from="CharacterBody3D/visuals/Skeleton3D/BoneAttachment3D/FistHitbox" to="CharacterBody3D" method="_on_fist_hitbox_body_entered"]
 
 [editable path="CharacterBody3D/visuals"]

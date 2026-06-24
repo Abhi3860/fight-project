@@ -1,5 +1,6 @@
-[gd_scene load_steps=2 format=3 uid="uid://crxlbuk5lshpn"]
+[gd_scene load_steps=3 format=3 uid="uid://crxlbuk5lshpn"]
 
+[ext_resource type="PackedScene" uid="uid://crdacd4qd6inc" path="res://Scenes/enemy1.tscn" id="1_bo1nx"]
 [ext_resource type="PackedScene" uid="uid://dvrkvoxfp4ghk" path="res://Scenes/char.tscn" id="1_jjgbg"]
 
 [node name="Node3D" type="Node3D"]
@@ -15,6 +16,9 @@ size = Vector3(5, 3, 4)
 [node name="CSGBox3D2" type="CSGBox3D" parent="CSGBox3D"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.7681298, -13)
 size = Vector3(5, 3, 4)
+
+[node name="Node3D" parent="CSGBox3D" instance=ExtResource("1_bo1nx")]
+transform = Transform3D(-0.54357004, 0, 0.8393638, 0, 1, 0, -0.8393638, 0, -0.54357004, 0.04321575, 2.1286788, -1.8579667)
 
 [node name="Node3D" parent="." instance=ExtResource("1_jjgbg")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.2274904, 2.5200968, 2.6326509)

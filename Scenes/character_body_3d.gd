@@ -11,7 +11,7 @@ extends CharacterBody3D
 @export var gravity_multiplier: float = 2.5
 @export var dodge_speed: float = 20.0
 @export var dodge_duration: float = 0.15
-
+@export var joystick_sensitivity: float = 3.0
 @onready var visuals: Node3D = $visuals
 @onready var anim_tree: AnimationTree = $AnimationTree
 
@@ -34,6 +34,11 @@ var dodge_direction: Vector3 = Vector3.ZERO
 @export var jump_cost: float = 20.0           
 @export var dodge_cost: float = 30.0
 
+#attack stuff
+@export var attack_cost: float = 15.0
+@onready var fist_hitbox: Area3D = $visuals/Skeleton3D/BoneAttachment3D/FistHitbox
+
+
 var current_stamina = max_stamina
 var stamina_delay_timer: float = 0.0
 
@@ -43,7 +48,19 @@ func _ready() -> void:
 	
 	stamina_bar.max_value = max_stamina
 	stamina_bar.value = current_stamina
+	fist_hitbox.monitoring = false
+func _process(delta: float) -> void:
 	
+	var camera_input := Input.get_vector("camera_left", "camera_right", "camera_up", "camera_down")
+	
+	
+	if camera_input.length() > 0:
+		
+		camera_pivot.rotation.y -= camera_input.x * joystick_sensitivity * delta
+		
+		camera_pivot.rotation.x -= camera_input.y * joystick_sensitivity * delta
+		
+		camera_pivot.rotation.x = clamp(camera_pivot.rotation.x, deg_to_rad(-60), deg_to_rad(45))
 func _physics_process(delta: float) -> void:
 	var current_leg_state = anim_playback.get_current_node()
 	if not is_on_floor():
@@ -135,7 +152,15 @@ func _physics_process(delta: float) -> void:
 	anim_tree.set("parameters/AnimationNodeStateMachine/conditions/is_in_air", is_falling)
 	anim_tree.set("parameters/AnimationNodeStateMachine/conditions/is_grounded", is_on_floor())
 	
-	
+	#attack
+	var is_attacking: bool = anim_tree.get("parameters/OneShot/active")
+	if Input.is_action_just_pressed("Attack") and not is_attacking:
+		if current_stamina >= attack_cost:
+			current_stamina -= attack_cost
+			stamina_delay_timer = 0.0
+			anim_tree.set("parameters/OneShot/request", AnimationNodeOneShot.ONE_SHOT_REQUEST_FIRE)
+			fist_hitbox.monitoring = true
+			get_tree().create_timer(0.4).timeout.connect(func(): fist_hitbox.monitoring = false)
 	move_and_slide()
 	
 func start_dodge(current_direction: Vector3) -> void:
@@ -146,3 +171,9 @@ func start_dodge(current_direction: Vector3) -> void:
 		dodge_direction = current_direction
 		
 	get_tree().create_timer(dodge_duration).timeout.connect(func(): is_dodging = false)
+
+
+func _on_fist_hitbox_body_entered(body: Node3D) -> void:
+	if body.has_method("take_damage"):
+		# Deal 25 damage to the enemy
+		body.take_damage(25)
